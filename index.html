@@ -24,17 +24,17 @@
       theme: {
         extend: {
           colors: {
-            appbg: '#071029',      // slightly lighter deep-blue
-            card: 'rgba(255,255,255,0.03)',
-            accentA: '#0ea5e9',    // teal-blue
-            accentB: '#6366f1'     // indigo
+            appbg: '#071029',
+            accentA: '#0ea5e9',
+            accentB: '#6366f1',
+            card: 'rgba(255,255,255,0.03)'
           },
           fontFamily: {
             heading: ['"Baloo 2"', 'cursive'],
             ui: ['Inter', 'system-ui', 'sans-serif']
           },
           boxShadow: {
-            'deep-lg': '0 18px 50px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02)'
+            'deep-lg': '0 18px 50px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.03)'
           }
         }
       }
@@ -45,7 +45,8 @@
     :root {
       --rate: 1.95583;
       --bg: #071029;
-      --pattern-opacity: 0.12; /* stronger so symbols are visible */
+      --pattern-opacity: 0.08;
+      --symbol-opacity: 0.16; /* visible but subtle */
     }
 
     html,body,#app { height:100%; background: var(--bg); }
@@ -59,7 +60,7 @@
       -webkit-backdrop-filter: blur(10px) saturate(120%);
     }
 
-    /* Patterned background animation */
+    /* Patterned tiled background (subtle chess of shapes) */
     .pattern-bg {
       position: absolute;
       inset: 0;
@@ -79,7 +80,44 @@
       100% { transform: translate3d(-8px,-6px,0) rotate(-1deg) scale(1); }
     }
 
-    /* Better visible inputs / glass */
+    /* Floating big symbols (distinct, slow moving, good contrast) */
+    .floating-symbols {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: visible;
+      mix-blend-mode: screen;
+    }
+    .symbol {
+      position: absolute;
+      will-change: transform, opacity;
+      opacity: var(--symbol-opacity);
+      filter: drop-shadow(0 8px 20px rgba(2,6,23,0.6));
+    }
+
+    /* Individual animation presets */
+    @keyframes floatSlowA {
+      0% { transform: translate3d(-10px, -8px, 0) rotate(-4deg) scale(1); opacity: 0.14; }
+      50% { transform: translate3d(10px, 12px, 0) rotate(4deg) scale(1.06); opacity: 0.18; }
+      100% { transform: translate3d(-10px, -8px, 0) rotate(-4deg) scale(1); opacity: 0.14; }
+    }
+    @keyframes floatSlowB {
+      0% { transform: translate3d(6px, -6px, 0) rotate(2deg) scale(0.98); opacity: 0.12; }
+      50% { transform: translate3d(-6px, 8px, 0) rotate(-2deg) scale(1.03); opacity: 0.18; }
+      100% { transform: translate3d(6px, -6px, 0) rotate(2deg) scale(0.98); opacity: 0.12; }
+    }
+    @keyframes floatSlowC {
+      0% { transform: translate3d(-4px, 6px, 0) rotate(0deg) scale(1.02); opacity: 0.10; }
+      50% { transform: translate3d(8px, -10px, 0) rotate(6deg) scale(1.08); opacity: 0.20; }
+      100% { transform: translate3d(-4px, 6px, 0) rotate(0deg) scale(1.02); opacity: 0.10; }
+    }
+
+    .s-a { animation: floatSlowA 28s ease-in-out infinite; }
+    .s-b { animation: floatSlowB 34s ease-in-out infinite; }
+    .s-c { animation: floatSlowC 30s ease-in-out infinite; }
+
+    /* Make inputs clearer */
     input, select {
       -webkit-appearance: none;
       -moz-appearance: none;
@@ -89,7 +127,7 @@
       backdrop-filter: blur(6px);
     }
 
-    /* Result card animation */
+    /* Result animation */
     .result-enter { transition: transform .25s cubic-bezier(.2,.9,.2,1), opacity .25s ease; transform-origin: center; }
     .result-hidden { opacity: 0; transform: translateY(8px) scale(.995); }
     .result-visible { opacity: 1; transform: translateY(0) scale(1); }
@@ -108,23 +146,59 @@
       display:flex; align-items:center; justify-content:center;
       box-shadow: 0 6px 18px rgba(2,6,23,0.45), inset 0 1px 0 rgba(255,255,255,0.03);
     }
-
-    /* subtle footer small */
-    footer small { opacity:0.95; }
   </style>
 </head>
 <body class="font-ui text-slate-100 antialiased">
-  <div id="app" class="min-h-screen flex items-center justify-center p-6 relative">
+  <div id="app" class="min-h-screen flex items-center justify-center p-6 relative" style="background: var(--bg);">
 
-    <!-- Patterned background (SVG tile generated at runtime) -->
+    <!-- Subtle tiled pattern -->
     <div id="pattern" class="pattern-bg rounded-xl" aria-hidden="true"></div>
+
+    <!-- Floating distinct € and лв symbols for better contrast and motion -->
+    <div class="floating-symbols" aria-hidden="true">
+      <!-- Large Euro, top-left -->
+      <svg class="symbol s-a" style="left:6%; top:8%; width:160px; height:160px; transform-origin:center;" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="g-eur" x1="0" x2="1"><stop offset="0" stop-color="#0ea5e9"/><stop offset="1" stop-color="#6366f1"/></linearGradient>
+        </defs>
+        <circle cx="64" cy="64" r="64" fill="url(#g-eur)" opacity="0.12"/>
+        <text x="64" y="80" text-anchor="middle" font-family="Baloo 2, Inter, sans-serif" font-weight="700" font-size="72" fill="white" opacity="0.98">€</text>
+      </svg>
+
+      <!-- Large BGN symbol, bottom-right -->
+      <svg class="symbol s-b" style="right:6%; bottom:6%; width:140px; height:140px; transform-origin:center;" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="g-bgn" x1="0" x2="1"><stop offset="0" stop-color="#10b981"/><stop offset="1" stop-color="#06b6d4"/></linearGradient>
+        </defs>
+        <circle cx="64" cy="64" r="64" fill="url(#g-bgn)" opacity="0.12"/>
+        <text x="64" y="74" text-anchor="middle" font-family="Baloo 2, Inter, sans-serif" font-weight="700" font-size="42" fill="white" opacity="0.98">лв</text>
+      </svg>
+
+      <!-- Medium Euro, near center-left -->
+      <svg class="symbol s-c" style="left:18%; top:46%; width:100px; height:100px; transform-origin:center;" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="g-eur2" x1="0" x2="1"><stop offset="0" stop-color="#0ea5e9"/><stop offset="1" stop-color="#6366f1"/></linearGradient>
+        </defs>
+        <circle cx="64" cy="64" r="64" fill="url(#g-eur2)" opacity="0.10"/>
+        <text x="64" y="78" text-anchor="middle" font-family="Baloo 2, Inter, sans-serif" font-weight="700" font-size="56" fill="white" opacity="0.95">€</text>
+      </svg>
+
+      <!-- Small BGN, upper-right -->
+      <svg class="symbol s-a" style="right:14%; top:16%; width:88px; height:88px; transform-origin:center;" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="g-bgn2" x1="0" x2="1"><stop offset="0" stop-color="#10b981"/><stop offset="1" stop-color="#06b6d4"/></linearGradient>
+        </defs>
+        <circle cx="64" cy="64" r="64" fill="url(#g-bgn2)" opacity="0.10"/>
+        <text x="64" y="72" text-anchor="middle" font-family="Baloo 2, Inter, sans-serif" font-weight="700" font-size="36" fill="white" opacity="0.98">лв</text>
+      </svg>
+    </div>
 
     <!-- App window -->
     <main class="relative z-10 w-full max-w-xl app-window rounded-2xl p-6 sm:p-8 one-hand-spacing">
       <header class="flex items-center gap-4">
         <!-- Tile with refined blue-indigo gradient, rounded -->
-        <div class="flex-none logo-tile" style="background: linear-gradient(135deg,var(--tw-gradient-stops));">
-          <div style="background:linear-gradient(135deg,#0ea5e9,#6366f1); width:56px; height:56px; border-radius:12px; display:flex; align-items:center; justify-content:center;">
+        <div class="flex-none logo-tile" style="background: linear-gradient(135deg,#0ea5e9,#6366f1);">
+          <div style="width:56px; height:56px; border-radius:12px; display:flex; align-items:center; justify-content:center;">
             <!-- refined symbol -->
             <svg width="36" height="36" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <defs>
@@ -331,15 +405,15 @@
     paidBgnInput.value = '';
     paidEurInput.value = '';
 
-    // Patterned background generation
+    // Patterned background generation (subtle tile)
     (function generatePattern() {
       const tileSize = 240;
-      const symbols = ['€', 'лв', '◦', '▦']; // coin/bill placeholders with simple shapes
+      const symbols = ['€', 'лв', '◦', '▦'];
       const cols = 4, rows = 4;
       const cellW = tileSize / cols, cellH = tileSize / rows;
       let svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${tileSize}' height='${tileSize}' viewBox='0 0 ${tileSize} ${tileSize}'>`;
       svg += `<rect width='100%' height='100%' fill='${'#071029'}' />`;
-      svg += `<g fill='#1f2937' opacity='0.9' font-family='Baloo 2, Inter, sans-serif' font-weight='700' font-size='36' text-anchor='middle' dominant-baseline='central'>`;
+      svg += `<g fill='#0f172a' opacity='0.9' font-family='Baloo 2, Inter, sans-serif' font-weight='700' font-size='36' text-anchor='middle' dominant-baseline='central'>`;
       for (let r=0;r<rows;r++) {
         for (let c=0;c<cols;c++) {
           const sym = symbols[(c + r) % symbols.length];
@@ -353,10 +427,10 @@
       const patternEl = document.getElementById('pattern');
       patternEl.style.backgroundImage = `url("${svgUrl}")`;
       patternEl.style.backgroundSize = `${tileSize}px ${tileSize}px`;
-      patternEl.style.opacity = getComputedStyle(document.documentElement).getPropertyValue('--pattern-opacity') || '0.12';
+      patternEl.style.opacity = getComputedStyle(document.documentElement).getPropertyValue('--pattern-opacity') || '0.08';
     })();
 
-    // PWA: dynamic SVG icon + manifest + service worker (keep, but no install UI)
+    // PWA: dynamic SVG icon + manifest + service worker (kept but no install prompt UI)
     (function setupPWA() {
       function generateSVGIcon(size = 512) {
         const gradId = 'g' + Math.random().toString(36).slice(2,8);
