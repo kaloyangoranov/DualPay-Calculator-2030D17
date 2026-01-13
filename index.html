@@ -6,7 +6,7 @@
   <title>DualPay Calculator 2030D17 — Калоян Горанов</title>
 
   <!-- PWA & Meta -->
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#071029" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="application-name" content="DualPay Calculator 2030D17" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -17,24 +17,24 @@
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Baloo+2:wght@400;700&display=swap" rel="stylesheet">
 
-  <!-- Tailwind Play CDN (single-file friendly) -->
+  <!-- Tailwind (single-file friendly) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    // Tailwind config: add fonts & custom colors
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            bgapp: '#0f172a',
-            dualgreen: '#22c55e',
-            deepglass: 'rgba(255,255,255,0.04)'
+            appbg: '#071029',      // slightly lighter deep-blue
+            card: 'rgba(255,255,255,0.03)',
+            accentA: '#0ea5e9',    // teal-blue
+            accentB: '#6366f1'     // indigo
           },
           fontFamily: {
             heading: ['"Baloo 2"', 'cursive'],
             ui: ['Inter', 'system-ui', 'sans-serif']
           },
           boxShadow: {
-            'deep-lg': '0 10px 30px rgba(2,6,23,0.7), inset 0 1px 0 rgba(255,255,255,0.02)'
+            'deep-lg': '0 18px 50px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02)'
           }
         }
       }
@@ -44,86 +44,97 @@
   <style>
     :root {
       --rate: 1.95583;
-      --bg: #0f172a;
-      --tile-opacity: 0.08;
+      --bg: #071029;
+      --pattern-opacity: 0.12; /* stronger so symbols are visible */
     }
 
-    html,body,#app {
-      height: 100%;
-      background: var(--bg);
-    }
+    html,body,#app { height:100%; background: var(--bg); }
 
-    /* App window */
+    /* App-like window */
     .app-window {
-      backdrop-filter: blur(8px) saturate(120%);
-      -webkit-backdrop-filter: blur(8px) saturate(120%);
       background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      box-shadow: var(--tw-shadow, 0 10px 30px rgba(2,6,23,0.7));
-      border: 1px solid rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.04);
+      box-shadow: var(--tw-shadow, 0 18px 50px rgba(2,6,23,0.6));
+      backdrop-filter: blur(10px) saturate(120%);
+      -webkit-backdrop-filter: blur(10px) saturate(120%);
     }
 
-    /* Floating patterned background animation */
+    /* Patterned background animation */
     .pattern-bg {
       position: absolute;
       inset: 0;
       z-index: 0;
-      opacity: var(--tile-opacity);
+      pointer-events: none;
       background-repeat: repeat;
       background-size: 240px 240px;
-      pointer-events: none;
-      transform-origin: center;
-      animation: float 20s ease-in-out infinite;
+      opacity: var(--pattern-opacity);
       mix-blend-mode: overlay;
-      filter: saturate(0.6) brightness(0.9);
-    }
-
-    @keyframes float {
-      0% { transform: translate3d(-6px,-4px,0) rotate(-1deg) scale(1); }
-      50% { transform: translate3d(6px,4px,0) rotate(1deg) scale(1.02); }
-      100% { transform: translate3d(-6px,-4px,0) rotate(-1deg) scale(1); }
-    }
-
-    /* Animated result */
-    .result-enter {
+      filter: contrast(0.95) brightness(0.95);
+      animation: float 26s ease-in-out infinite;
       transform-origin: center;
-      transition: transform .28s ease, opacity .28s ease;
     }
-    .result-hidden { opacity: 0; transform: translateY(6px) scale(.98); }
+    @keyframes float {
+      0% { transform: translate3d(-8px,-6px,0) rotate(-1deg) scale(1); }
+      50% { transform: translate3d(8px,6px,0) rotate(1deg) scale(1.03); }
+      100% { transform: translate3d(-8px,-6px,0) rotate(-1deg) scale(1); }
+    }
+
+    /* Better visible inputs / glass */
+    input, select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+      backdrop-filter: blur(6px);
+    }
+
+    /* Result card animation */
+    .result-enter { transition: transform .25s cubic-bezier(.2,.9,.2,1), opacity .25s ease; transform-origin: center; }
+    .result-hidden { opacity: 0; transform: translateY(8px) scale(.995); }
     .result-visible { opacity: 1; transform: translateY(0) scale(1); }
 
     /* Segmented control */
-    .segmented button {
-      transition: background-color .18s, color .18s;
-    }
+    .segmented button { transition: background-color .16s, color .16s; }
 
-    /* Small helpers for one-hand UX: bottom spacing on mobile */
+    /* mobile one-hand spacing */
     @media (max-width: 640px) {
-      .one-hand-spacing { padding-bottom: 18vh; }
+      .one-hand-spacing { padding-bottom: 16vh; }
     }
 
-    /* For apple icon masking when needed */
-    .round-mask { border-radius: 50%; overflow: hidden; }
+    /* Logo tile */
+    .logo-tile {
+      width:64px; height:64px; border-radius:14px;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow: 0 6px 18px rgba(2,6,23,0.45), inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    /* subtle footer small */
+    footer small { opacity:0.95; }
   </style>
 </head>
-<body class="font-ui text-slate-200 antialiased">
+<body class="font-ui text-slate-100 antialiased">
   <div id="app" class="min-h-screen flex items-center justify-center p-6 relative">
 
-    <!-- Patterned background (SVG encoded at runtime) -->
+    <!-- Patterned background (SVG tile generated at runtime) -->
     <div id="pattern" class="pattern-bg rounded-xl" aria-hidden="true"></div>
 
     <!-- App window -->
-    <main class="relative z-10 w-full max-w-xl app-window rounded-2xl p-5 sm:p-8 one-hand-spacing">
+    <main class="relative z-10 w-full max-w-xl app-window rounded-2xl p-6 sm:p-8 one-hand-spacing">
       <header class="flex items-center gap-4">
-        <!-- Tile with green background, rounded corners, contains icons and DualPay -->
-        <div class="flex-none rounded-xl bg-dualgreen p-3 shadow deepglass" style="min-width:64px;min-height:64px;">
-          <div class="w-10 h-10 round-mask bg-gradient-to-br from-sky-600 to-emerald-400 flex items-center justify-center text-white text-2xl font-heading leading-none">
-            <!-- small stylized € and лв -->
-            <svg viewBox="0 0 64 64" width="36" height="36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <!-- Tile with refined blue-indigo gradient, rounded -->
+        <div class="flex-none logo-tile" style="background: linear-gradient(135deg,var(--tw-gradient-stops));">
+          <div style="background:linear-gradient(135deg,#0ea5e9,#6366f1); width:56px; height:56px; border-radius:12px; display:flex; align-items:center; justify-content:center;">
+            <!-- refined symbol -->
+            <svg width="36" height="36" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <defs>
-                <linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#06b6d4"/><stop offset="1" stop-color="#16a34a"/></linearGradient>
+                <linearGradient id="lg1" x1="0" x2="1"><stop offset="0" stop-color="#0ea5e9"/><stop offset="1" stop-color="#6366f1"/></linearGradient>
               </defs>
-              <rect width="64" height="64" rx="12" fill="url(#g)"/>
-              <text x="12" y="40" font-family="Baloo 2, serif" font-weight="700" font-size="22" fill="white">€лв</text>
+              <rect width="64" height="64" rx="12" fill="url(#lg1)"/>
+              <g fill="white" font-family="Baloo 2, serif" font-weight="700" font-size="20" text-anchor="middle" dominant-baseline="central">
+                <text x="22" y="36">€</text>
+                <text x="42" y="32" font-size="18">лв</text>
+              </g>
             </svg>
           </div>
         </div>
@@ -131,9 +142,6 @@
         <div>
           <h1 class="text-white font-heading text-2xl leading-tight">DualPay Calculator</h1>
           <p class="text-slate-300 text-sm mt-0.5">PWA • Ресто в BGN & EUR — Автор: Калоян Горанов</p>
-        </div>
-        <div class="ml-auto text-right">
-          <div id="install-hint" class="text-xs text-slate-400">Инсталирайте приложението</div>
         </div>
       </header>
 
@@ -143,9 +151,9 @@
           <span class="text-slate-300 text-sm">Сума за плащане</span>
           <div class="mt-2 flex gap-2">
             <input id="amount" inputmode="decimal" type="text" placeholder="0.00"
-                   class="flex-1 rounded-xl px-4 py-3 bg-slate-100 text-slate-900 placeholder-slate-500 focus:outline-none"
+                   class="flex-1 rounded-xl px-4 py-3 bg-white/6 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400"
                    aria-label="Сума за плащане" />
-            <select id="amount-currency" class="rounded-xl px-3 py-3 bg-white/6 text-slate-200">
+            <select id="amount-currency" class="rounded-xl px-3 py-3 bg-white/6 text-white/95">
               <option value="BGN">BGN — лв</option>
               <option value="EUR">EUR — €</option>
             </select>
@@ -157,22 +165,22 @@
           <label class="block">
             <span class="text-slate-300 text-sm">Платено в лв</span>
             <input id="paid-bgn" inputmode="decimal" type="text" placeholder="0.00"
-                   class="mt-2 rounded-xl px-4 py-3 bg-slate-800/60 text-slate-100 focus:outline-none" />
+                   class="mt-2 rounded-xl px-4 py-3 bg-white/4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
           </label>
           <label class="block">
             <span class="text-slate-300 text-sm">Платено в €</span>
             <input id="paid-eur" inputmode="decimal" type="text" placeholder="0.00"
-                   class="mt-2 rounded-xl px-4 py-3 bg-slate-800/60 text-slate-100 focus:outline-none" />
+                   class="mt-2 rounded-xl px-4 py-3 bg-white/4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
           </label>
         </div>
 
-        <!-- Error box when insufficient -->
+        <!-- Error box -->
         <div id="error-box" class="hidden rounded-xl p-3 bg-red-600/10 border border-red-600 text-red-300">
           <strong id="error-msg" class="block text-sm"></strong>
         </div>
 
-        <!-- Резултат -->
-        <div id="result-card" class="result-enter result-hidden rounded-2xl p-4 bg-gradient-to-b from-white/3 to-white/2 border border-white/6">
+        <!-- Result -->
+        <div id="result-card" class="result-enter result-hidden rounded-2xl p-4 bg-gradient-to-b from-white/4 to-white/3 border border-white/6">
           <div class="flex items-center justify-between">
             <div>
               <div class="text-sm text-slate-300">Ресто</div>
@@ -187,7 +195,6 @@
           </div>
         </div>
 
-        <!-- Small helper -->
         <p class="text-xs text-slate-400 mt-2">Пишете стойности в полетата; изчисленията се правят в реално време. За десетични използвайте точка или запетая.</p>
       </section>
 
@@ -215,7 +222,7 @@
     const segBgn = document.getElementById('seg-bgn');
     const segEur = document.getElementById('seg-eur');
 
-    // formatters
+    // Formatters
     const fmtBGN = new Intl.NumberFormat('bg-BG', { style: 'currency', currency: 'BGN', maximumFractionDigits: 2 });
     const fmtEUR = new Intl.NumberFormat('bg-BG', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 });
 
@@ -224,7 +231,6 @@
       if (v === null || v === undefined) return NaN;
       v = String(v).trim().replace(',', '.');
       if (v === '') return NaN;
-      // Remove any non numeric except dot and minus
       v = v.replace(/[^\d.-]/g, '');
       return parseFloat(v);
     }
@@ -232,12 +238,9 @@
     function showError(text) {
       errorMsg.textContent = text;
       errorBox.classList.remove('hidden');
-      // hide result
       hideResult();
     }
-    function hideError() {
-      errorBox.classList.add('hidden');
-    }
+    function hideError() { errorBox.classList.add('hidden'); }
 
     function showResult() {
       resultCard.classList.remove('result-hidden');
@@ -248,8 +251,8 @@
       resultCard.classList.remove('result-visible');
     }
 
-    // Segmented control state
-    let changeCurrency = 'BGN'; // or 'EUR'
+    // Segmented control
+    let changeCurrency = 'BGN';
     function setSegmented(currency) {
       changeCurrency = currency;
       if (currency === 'BGN') {
@@ -261,12 +264,11 @@
       }
       compute();
     }
-
     segBgn.addEventListener('click', () => setSegmented('BGN'));
     segEur.addEventListener('click', () => setSegmented('EUR'));
     setSegmented('BGN');
 
-    // Main compute function
+    // Compute
     function compute() {
       hideError();
 
@@ -275,21 +277,16 @@
       const paidBgn = sanitizeNumber(paidBgnInput.value) || 0;
       const paidEur = sanitizeNumber(paidEurInput.value) || 0;
 
-      if (isNaN(amountRaw)) {
-        hideResult();
-        return;
-      }
+      if (isNaN(amountRaw)) { hideResult(); return; }
 
-      // Convert amount to BGN for internal calc
+      // Convert amount to BGN
       let amountBGN = currency === 'BGN' ? amountRaw : amountRaw * RATE;
-      // Round to 2 decimals for currency math
       amountBGN = Math.round((amountBGN + Number.EPSILON) * 100) / 100;
 
       // Convert payments to BGN
       const totalPaidBGN = Math.round(((paidBgn || 0) + (paidEur || 0) * RATE + Number.EPSILON) * 100) / 100;
 
       if (totalPaidBGN < amountBGN - 0.001) {
-        // insufficient
         const diffBGN = Math.round(((amountBGN - totalPaidBGN) + Number.EPSILON) * 100) / 100;
         const diffEUR = Math.round(((diffBGN / RATE) + Number.EPSILON) * 100) / 100;
         showError(`Недостатъчна сума — липсват ${fmtBGN.format(diffBGN)} (${fmtEUR.format(diffEUR)})`);
@@ -316,44 +313,38 @@
       showResult();
     }
 
-    // Input listeners (real-time)
+    // Inputs listen
     [amountInput, amountCurrency, paidBgnInput, paidEurInput].forEach(el => {
       el.addEventListener('input', compute);
       el.addEventListener('change', compute);
     });
 
-    // Initialize with placeholders
+    // Enter triggers compute
+    [amountInput, paidBgnInput, paidEurInput].forEach(el => {
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); compute(); }
+      });
+    });
+
+    // Init empty
     amountInput.value = '';
     paidBgnInput.value = '';
     paidEurInput.value = '';
 
-    // Accessibility: allow Enter to trigger compute
-    [amountInput, paidBgnInput, paidEurInput].forEach(el => {
-      el.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          compute();
-        }
-      });
-    });
-
-    // Patterned background generation (SVG tile)
+    // Patterned background generation
     (function generatePattern() {
-      // We create a 240x240 tile with strictly alternating symbols in a 4x4 grid
       const tileSize = 240;
-      const symbols = ['€', 'лв', '₿', '💶']; // last two used as coin/bill placeholders (coin symbol & euro banknotes emoji)
-      // We'll arrange them strictly alternating in rows/cols
+      const symbols = ['€', 'лв', '◦', '▦']; // coin/bill placeholders with simple shapes
       const cols = 4, rows = 4;
       const cellW = tileSize / cols, cellH = tileSize / rows;
       let svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${tileSize}' height='${tileSize}' viewBox='0 0 ${tileSize} ${tileSize}'>`;
-      svg += `<rect width='100%' height='100%' fill='${'#0f172a'}' />`;
-      svg += `<g fill='#94a3b8' opacity='0.14' font-family='Baloo 2, Inter, sans-serif' font-weight='700' font-size='40' text-anchor='middle' dominant-baseline='central'>`;
+      svg += `<rect width='100%' height='100%' fill='${'#071029'}' />`;
+      svg += `<g fill='#1f2937' opacity='0.9' font-family='Baloo 2, Inter, sans-serif' font-weight='700' font-size='36' text-anchor='middle' dominant-baseline='central'>`;
       for (let r=0;r<rows;r++) {
         for (let c=0;c<cols;c++) {
-          const idx = (r*cols + c) % symbols.length;
-          const x = c * cellW + cellW/2;
-          const y = r * cellH + cellH/2 + (r%2===0 ? -6 : 6);
           const sym = symbols[(c + r) % symbols.length];
+          const x = c * cellW + cellW/2;
+          const y = r * cellH + cellH/2 + ( (r%2===0) ? -4 : 4 );
           svg += `<text x='${x}' y='${y}'>${sym}</text>`;
         }
       }
@@ -361,11 +352,11 @@
       const svgUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
       const patternEl = document.getElementById('pattern');
       patternEl.style.backgroundImage = `url("${svgUrl}")`;
-      patternEl.style.opacity = '0.08';
       patternEl.style.backgroundSize = `${tileSize}px ${tileSize}px`;
+      patternEl.style.opacity = getComputedStyle(document.documentElement).getPropertyValue('--pattern-opacity') || '0.12';
     })();
 
-    // PWA: generate dynamic SVG icon and manifest blob, register service worker
+    // PWA: dynamic SVG icon + manifest + service worker (keep, but no install UI)
     (function setupPWA() {
       function generateSVGIcon(size = 512) {
         const gradId = 'g' + Math.random().toString(36).slice(2,8);
@@ -374,25 +365,22 @@
             <defs>
               <linearGradient id='${gradId}' x1='0' x2='1'>
                 <stop offset='0' stop-color='#0ea5e9'/>
-                <stop offset='1' stop-color='#16a34a'/>
+                <stop offset='1' stop-color='#6366f1'/>
               </linearGradient>
               <mask id='m'><rect x='0' y='0' width='512' height='512' rx='120' fill='white'/></mask>
             </defs>
             <rect width='100%' height='100%' rx='120' fill='url(#${gradId})' />
-            <!-- diagonal split -->
             <g mask='url(#m)'>
-              <rect x='0' y='0' width='512' height='512' fill='url(#${gradId})' />
               <path d='M0,0 L512,0 L512,256 L0,512 Z' fill='rgba(255,255,255,0.06)' />
-              <g font-family='Baloo 2, serif' font-size='170' fill='white' font-weight='700' text-anchor='middle' dominant-baseline='middle'>
-                <text x='160' y='270' transform='rotate(-12 160 270)'>€</text>
-                <text x='360' y='240' transform='rotate(12 360 240)'>лв</text>
+              <g font-family='Baloo 2, serif' font-size='180' fill='white' font-weight='700' text-anchor='middle' dominant-baseline='middle'>
+                <text x='170' y='290' transform='rotate(-10 170 290)'>€</text>
+                <text x='360' y='250' transform='rotate(10 360 250)'>лв</text>
               </g>
             </g>
           </svg>`;
         return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
       }
 
-      // create manifest blob and link it
       const icon512 = generateSVGIcon(512);
       const icon192 = generateSVGIcon(192);
       const manifest = {
@@ -401,8 +389,8 @@
         description: "PWA за изчисляване на ресто в BGN и EUR",
         start_url: ".",
         display: "standalone",
-        background_color: "#0f172a",
-        theme_color: "#0f172a",
+        background_color: "#071029",
+        theme_color: "#071029",
         icons: [
           { src: icon192, sizes: "192x192", type: "image/svg+xml" },
           { src: icon512, sizes: "512x512", type: "image/svg+xml" }
@@ -415,40 +403,22 @@
       link.href = manifestURL;
       document.head.appendChild(link);
 
-      // apple touch icon
       const appleLink = document.createElement('link');
       appleLink.rel = 'apple-touch-icon';
       appleLink.href = icon512;
       appleLink.sizes = '512x512';
       document.head.appendChild(appleLink);
 
-      // set meta theme-color
-      let metaTheme = document.querySelector('meta[name="theme-color"]');
-      if (!metaTheme) {
-        metaTheme = document.createElement('meta');
-        metaTheme.name = 'theme-color';
-        document.head.appendChild(metaTheme);
-      }
-      metaTheme.content = '#0f172a';
-
-      // Service worker: generate a small SW via blob for caching shell (single-file)
+      // Service worker (simple caching for the single-file PWA)
       if ('serviceWorker' in navigator) {
         const swCode = `
           const CACHE = 'dualpay-shell-v1';
-          const urlsToCache = [
-            '/',
-          ];
           self.addEventListener('install', (e) => {
             self.skipWaiting();
-            e.waitUntil(
-              caches.open(CACHE).then(cache => cache.addAll(urlsToCache).catch(()=>{}))
-            );
+            e.waitUntil(caches.open(CACHE).then(cache => cache.addAll(['/']).catch(()=>{})));
           });
-          self.addEventListener('activate', (e) => {
-            e.waitUntil(self.clients.claim());
-          });
+          self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
           self.addEventListener('fetch', (e) => {
-            // Try network first, fallback to cache
             e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
           });
         `;
@@ -456,22 +426,6 @@
         const swUrl = URL.createObjectURL(swBlob);
         navigator.serviceWorker.register(swUrl).catch(()=>{});
       }
-
-      // Install prompt UX hint (optional)
-      let deferredPrompt;
-      const installHint = document.getElementById('install-hint');
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        installHint.textContent = 'Натиснете тук за инсталиране';
-        installHint.style.cursor = 'pointer';
-        installHint.addEventListener('click', async () => {
-          if (!deferredPrompt) return;
-          deferredPrompt.prompt();
-          const choice = await deferredPrompt.userChoice;
-          deferredPrompt = null;
-        }, { once: true });
-      });
     })();
   </script>
 </body>
