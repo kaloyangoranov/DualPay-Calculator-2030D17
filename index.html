@@ -47,6 +47,10 @@
       --bg: #071029;
       --pattern-opacity: 0.08;
       --symbol-opacity: 0.16; /* visible but subtle */
+      --input-text: #ffffff;
+      --input-placeholder: rgba(255,255,255,0.48);
+      --input-bg: rgba(255,255,255,0.04);
+      --focus-ring: rgba(99,102,241,0.22);
     }
 
     html,body,#app { height:100%; background: var(--bg); }
@@ -80,7 +84,7 @@
       100% { transform: translate3d(-8px,-6px,0) rotate(-1deg) scale(1); }
     }
 
-    /* Floating big symbols (distinct, slow moving, good contrast) */
+    /* Floating distinct € and лв symbols for better contrast and motion */
     .floating-symbols {
       position: absolute;
       inset: 0;
@@ -117,23 +121,59 @@
     .s-b { animation: floatSlowB 34s ease-in-out infinite; }
     .s-c { animation: floatSlowC 30s ease-in-out infinite; }
 
-    /* Make inputs clearer */
-    input, select {
+    /* Make inputs clearer and always visible */
+    input, select, textarea {
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
       border: 1px solid rgba(255,255,255,0.06);
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
       backdrop-filter: blur(6px);
+      background: var(--input-bg);
+      color: var(--input-text) !important;       /* enforce visible text color */
+      caret-color: var(--input-text);
+      -webkit-text-fill-color: var(--input-text);/* iOS/webkit text fill */
+      font-family: inherit;
     }
+
+    /* Placeholder variants */
+    input::placeholder, textarea::placeholder, select::placeholder {
+      color: var(--input-placeholder) !important;
+      opacity: 1;
+    }
+    /* vendor placeholders */
+    input::-webkit-input-placeholder { color: var(--input-placeholder) !important; }
+    input:-moz-placeholder { color: var(--input-placeholder) !important; opacity:1; }
+    input::-moz-placeholder { color: var(--input-placeholder) !important; opacity:1; }
+    input:-ms-input-placeholder { color: var(--input-placeholder) !important; }
+
+    /* Selection inside inputs */
+    input::selection, textarea::selection {
+      background: var(--focus-ring);
+      color: #fff;
+    }
+    ::selection { background: rgba(99,102,241,0.12); color: #fff; }
+
+    /* Autofill (chrome) */
+    input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill {
+      -webkit-text-fill-color: var(--input-text) !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
+    /* Make select options legible (browsers vary) */
+    select, select option {
+      color: var(--input-text) !important;
+      background: rgba(8,10,18,0.85) !important;
+    }
+
+    /* Give segmented buttons clear contrast */
+    .segmented button { transition: background-color .16s, color .16s; color: var(--input-text); }
+    .segmented .active { background: rgba(255,255,255,0.11); color: #fff; }
 
     /* Result animation */
     .result-enter { transition: transform .25s cubic-bezier(.2,.9,.2,1), opacity .25s ease; transform-origin: center; }
     .result-hidden { opacity: 0; transform: translateY(8px) scale(.995); }
     .result-visible { opacity: 1; transform: translateY(0) scale(1); }
-
-    /* Segmented control */
-    .segmented button { transition: background-color .16s, color .16s; }
 
     /* mobile one-hand spacing */
     @media (max-width: 640px) {
@@ -146,6 +186,9 @@
       display:flex; align-items:center; justify-content:center;
       box-shadow: 0 6px 18px rgba(2,6,23,0.45), inset 0 1px 0 rgba(255,255,255,0.03);
     }
+
+    /* small accessibility tweak: larger hit area for segmented buttons on mobile */
+    .segmented button { padding-left: 0.85rem; padding-right: 0.85rem; }
   </style>
 </head>
 <body class="font-ui text-slate-100 antialiased">
@@ -225,26 +268,26 @@
           <span class="text-slate-300 text-sm">Сума за плащане</span>
           <div class="mt-2 flex gap-2">
             <input id="amount" inputmode="decimal" type="text" placeholder="0.00"
-                   class="flex-1 rounded-xl px-4 py-3 bg-white/6 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                   class="flex-1 rounded-xl px-4 py-3 bg-white/6 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400"
                    aria-label="Сума за плащане" />
-            <select id="amount-currency" class="rounded-xl px-3 py-3 bg-white/6 text-white/95">
+            <select id="amount-currency" class="rounded-xl px-3 py-3 bg-white/6">
               <option value="BGN">BGN — лв</option>
               <option value="EUR">EUR — €</option>
             </select>
           </div>
         </label>
 
-        <!-- Платено полета -->
+        <!-- Пл��тено полета -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <label class="block">
             <span class="text-slate-300 text-sm">Платено в лв</span>
             <input id="paid-bgn" inputmode="decimal" type="text" placeholder="0.00"
-                   class="mt-2 rounded-xl px-4 py-3 bg-white/4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                   class="mt-2 rounded-xl px-4 py-3 bg-white/4 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
           </label>
           <label class="block">
             <span class="text-slate-300 text-sm">Платено в €</span>
             <input id="paid-eur" inputmode="decimal" type="text" placeholder="0.00"
-                   class="mt-2 rounded-xl px-4 py-3 bg-white/4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+                   class="mt-2 rounded-xl px-4 py-3 bg-white/4 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
           </label>
         </div>
 
@@ -263,8 +306,8 @@
             </div>
 
             <div class="segmented inline-flex rounded-xl bg-white/6 p-1">
-              <button id="seg-bgn" class="px-3 py-2 rounded-lg text-sm text-slate-200">BGN</button>
-              <button id="seg-eur" class="px-3 py-2 rounded-lg text-sm text-slate-200">EUR</button>
+              <button id="seg-bgn" class="px-3 py-2 rounded-lg text-sm">BGN</button>
+              <button id="seg-eur" class="px-3 py-2 rounded-lg text-sm">EUR</button>
             </div>
           </div>
         </div>
@@ -295,6 +338,7 @@
     const changeSecondary = document.getElementById('change-secondary');
     const segBgn = document.getElementById('seg-bgn');
     const segEur = document.getElementById('seg-eur');
+    const segmented = document.querySelector('.segmented');
 
     // Formatters
     const fmtBGN = new Intl.NumberFormat('bg-BG', { style: 'currency', currency: 'BGN', maximumFractionDigits: 2 });
@@ -329,12 +373,12 @@
     let changeCurrency = 'BGN';
     function setSegmented(currency) {
       changeCurrency = currency;
+      segBgn.classList.remove('bg-white/10','text-white','active');
+      segEur.classList.remove('bg-white/10','text-white','active');
       if (currency === 'BGN') {
-        segBgn.classList.add('bg-white/10', 'text-white');
-        segEur.classList.remove('bg-white/10', 'text-white');
+        segBgn.classList.add('bg-white/10', 'text-white','active');
       } else {
-        segEur.classList.add('bg-white/10','text-white');
-        segBgn.classList.remove('bg-white/10','text-white');
+        segEur.classList.add('bg-white/10','text-white','active');
       }
       compute();
     }
